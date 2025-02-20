@@ -1,8 +1,8 @@
-package utils
+package sanitize
 
 import "strings"
 
-func cleanChirp(chirp string) string {
+func CleanChirp(chirp string) string {
 	tokens := strings.Split(chirp, " ")
 	for i, token := range tokens {
 		lower := strings.ToLower(token)

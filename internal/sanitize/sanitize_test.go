@@ -1,4 +1,4 @@
-package utils
+package sanitize
 
 import "testing"
 
@@ -21,7 +21,7 @@ func TestCleaningUpChirp(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		got := cleanChirp(c.input)
+		got := CleanChirp(c.input)
 		if c.want != got {
 			t.Errorf("want: %s, got: %s", c.want, got)
 		}
