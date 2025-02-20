@@ -15,6 +15,7 @@ func (cfg *apiConfig) handlerReset(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("unable to delete all users:", err)
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Reset is only allowed in dev environment."))
 		return
 	}
 	w.WriteHeader(http.StatusOK)
