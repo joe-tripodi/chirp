@@ -10,39 +10,35 @@ func (apiCfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 	// unmarshal the response
 	// execute the db command
 	// return json data from the DB
-	type CreateUserRequest struct {
+	type parameters struct {
 		Email string `json:"email"`
 	}
+	type response struct {
+		User
+	}
 
-	var createUserJson CreateUserRequest
+	var params parameters
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&createUserJson)
+	err := decoder.Decode(&params)
 	if err != nil {
-		log.Println("unable to parse request:", err)
-		w.WriteHeader(500)
+		respondWithError(w, http.StatusInternalServerError, "Couldn't decode params", err)
 		return
 	}
-	log.Println(createUserJson)
 
-	user, err := apiCfg.db.CreateUser(r.Context(), createUserJson.Email)
+	user, err := apiCfg.db.CreateUser(r.Context(), params.Email)
 	if err != nil {
-		// I could check if the user already exists and return a 4XX error
-		log.Println("Failed to create user in the database:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		respondWithError(w, http.StatusInternalServerError, "Couldn't create user", err)
 		return
 	}
 	log.Println("user created:", user)
 
-	userResponse := User{
-		ID:        user.ID,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-		Email:     user.Email,
-	}
-
-	respBody, err := json.Marshal(userResponse)
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(201)
-	w.Write(respBody)
+	respondWithJSON(w, http.StatusCreated, response{
+		User: User{
+			ID:        user.ID,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+			Email:     user.Email,
+		},
+	})
 
 }
