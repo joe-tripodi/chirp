@@ -24,6 +24,7 @@ type User struct {
 type apiConfig struct {
 	fileserverHits atomic.Int32
 	db             *database.Queries
+	platform       string
 }
 
 func main() {
@@ -40,10 +41,15 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to open DB connection: %s\n", err)
 	}
+	platform := os.Getenv("PLATFORM")
+	if platform == "" {
+		log.Fatal("PLATFORM must be set")
+	}
 
 	apiCfg := apiConfig{
 		fileserverHits: atomic.Int32{},
 		db:             database.New(db),
+		platform:       platform,
 	}
 
 	mux := http.NewServeMux()
