@@ -59,6 +59,5 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 		return claims.UserId, nil
 	}
 
-	log.Fatal("unknown claims type, cannot proceed")
 	return uuid.Nil, errors.New("unknown claims type, cannot process")
 }
