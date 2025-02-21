@@ -48,7 +48,7 @@ func (cfg *apiConfig) handlerGetChirp(w http.ResponseWriter, r *http.Request) {
 
 func (cfg *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
 	queryParamAuthorId := r.URL.Query().Get("author_id")
-	var authorId uuid.UUID
+	authorId := uuid.Nil
 	if queryParamAuthorId != "" {
 		var err error
 		authorId, err = uuid.Parse(queryParamAuthorId)
