@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/joe-tripodi/chirpy/internal/auth"
-	"github.com/joe-tripodi/chirpy/internal/database"
 )
 
 func (cfg *apiConfig) handlerDeleteChirp(w http.ResponseWriter, r *http.Request) {
@@ -36,10 +35,7 @@ func (cfg *apiConfig) handlerDeleteChirp(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = cfg.db.DeleteChirpById(r.Context(), database.DeleteChirpByIdParams{
-		ID:     chirpId,
-		UserID: userId,
-	})
+	err = cfg.db.DeleteChirpById(r.Context(), chirpId)
 
 	if err != nil {
 		respondWithError(w, http.StatusForbidden, "you do not have access to delete this chirp", err)
