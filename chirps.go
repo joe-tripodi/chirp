@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -20,6 +21,28 @@ type Chirp struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	Body      string    `json:"body"`
 	UserId    uuid.UUID `json:"user_id"`
+}
+
+func (cfg *apiConfig) handlerGetChirp(w http.ResponseWriter, r *http.Request) {
+	chirpId, err := uuid.Parse(r.PathValue("chirpID"))
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "unable to parse chirpId", err)
+		return
+	}
+	chirp, err := cfg.db.GetChirp(r.Context(), chirpId)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, "Chirp does not exist", err)
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, Chirp{
+		ID:        chirp.ID,
+		CreatedAt: chirp.CreatedAt,
+		UpdatedAt: chirp.UpdatedAt,
+		Body:      chirp.Body,
+		UserId:    chirp.UserID,
+	})
+
 }
 
 func (cfg *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
