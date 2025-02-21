@@ -70,9 +70,8 @@ func (cfg *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
 
 func (cfg *apiConfig) handlerCreateChirp(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Body  string    `json:"body"`
-		ID    uuid.UUID `json:"user_id"`
-		Token string    `json:"token"`
+		Body string    `json:"body"`
+		ID   uuid.UUID `json:"user_id"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
