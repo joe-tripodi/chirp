@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"log"
 	"net/http"
@@ -94,4 +96,10 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 	}
 
 	return uuid.Nil, errors.New("unknown claims type, cannot process")
+}
+
+func MakeRefreshToken() (string, error) {
+	randomData := make([]byte, 32)
+	rand.Read(randomData)
+	return hex.EncodeToString(randomData), nil
 }
