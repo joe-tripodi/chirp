@@ -3,12 +3,42 @@ package auth
 import (
 	"errors"
 	"log"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var ErrNoAuthHeader = errors.New("Bearer Token Not Present")
+var ErrInvalidBearerToken = errors.New("Invalid Bearer Token")
+
+func GetBearerToken(header http.Header) (string, error) {
+	authHeader := header.Get("Authorization")
+	if authHeader == "" {
+		return "", ErrNoAuthHeader
+	}
+	bearerToken := GetTokenStringFromAuthHeader(authHeader)
+	if bearerToken == "" {
+		return "", ErrInvalidBearerToken
+	}
+	return bearerToken, nil
+}
+
+func GetTokenStringFromAuthHeader(authHeader string) string {
+	tokens := strings.Split(authHeader, " ")
+	if len(tokens) != 2 {
+		log.Println("Authorization header invalid")
+		return ""
+	}
+	if tokens[0] != "Bearer" {
+		log.Println("Authorization header invalid")
+		return ""
+	}
+	return tokens[1]
+}
 
 func HashPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
@@ -57,6 +87,10 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 
 	if claims, ok := token.Claims.(*CustomClaims); ok {
 		return claims.UserId, nil
+	}
+
+	if issuer, _ := token.Claims.GetIssuer(); issuer != "chirpy" {
+		return uuid.Nil, errors.New("unknown issuer")
 	}
 
 	return uuid.Nil, errors.New("unknown claims type, cannot process")
