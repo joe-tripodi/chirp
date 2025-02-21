@@ -22,20 +22,20 @@ func GetBearerToken(header http.Header) (string, error) {
 	if authHeader == "" {
 		return "", ErrNoAuthHeader
 	}
-	bearerToken := GetTokenStringFromAuthHeader(authHeader)
+	bearerToken := GetTokenStringFromAuthHeader(authHeader, "Bearer")
 	if bearerToken == "" {
 		return "", ErrInvalidBearerToken
 	}
 	return bearerToken, nil
 }
 
-func GetTokenStringFromAuthHeader(authHeader string) string {
+func GetTokenStringFromAuthHeader(authHeader, key string) string {
 	tokens := strings.Split(authHeader, " ")
 	if len(tokens) != 2 {
 		log.Println("Authorization header invalid")
 		return ""
 	}
-	if tokens[0] != "Bearer" {
+	if tokens[0] != key {
 		log.Println("Authorization header invalid")
 		return ""
 	}
@@ -102,4 +102,18 @@ func MakeRefreshToken() (string, error) {
 	randomData := make([]byte, 32)
 	rand.Read(randomData)
 	return hex.EncodeToString(randomData), nil
+}
+
+var ErrInvalidApiToken = errors.New("Invalid API token")
+
+func GetAPIKey(header http.Header) (string, error) {
+	authHeader := header.Get("Authorization")
+	if authHeader == "" {
+		return "", ErrNoAuthHeader
+	}
+	apiToken := GetTokenStringFromAuthHeader(authHeader, "ApiKey")
+	if apiToken == "" {
+		return "", ErrInvalidApiToken
+	}
+	return apiToken, nil
 }

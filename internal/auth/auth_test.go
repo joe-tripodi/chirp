@@ -62,7 +62,7 @@ func TestGetBearerTokenBadPath(t *testing.T) {
 		"": []string{},
 	}
 	_, err := GetBearerToken(header)
-	if err != ErrNoBearerToken {
+	if err != ErrNoAuthHeader {
 		t.Errorf("Expected ErrNoBearerToken")
 	}
 }

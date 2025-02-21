@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/joe-tripodi/chirpy/internal/auth"
 )
 
 func (cfg *apiConfig) handlerUserUpgraded(w http.ResponseWriter, r *http.Request) {
@@ -26,6 +27,17 @@ func (cfg *apiConfig) handlerUserUpgraded(w http.ResponseWriter, r *http.Request
 
 	if params.Event != "user.upgraded" {
 		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	apiToken, err := auth.GetAPIKey(r.Header)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if apiToken != cfg.polkaKey {
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
