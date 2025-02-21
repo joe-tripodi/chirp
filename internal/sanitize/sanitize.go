@@ -2,14 +2,14 @@ package sanitize
 
 import "strings"
 
-func CleanChirp(chirp string) string {
-	tokens := strings.Split(chirp, " ")
-	for i, token := range tokens {
-		lower := strings.ToLower(token)
-		if lower == "sharbert" || lower == "kerfuffle" || lower == "fornax" {
-			tokens[i] = "****"
+func CleanChirp(body string, badWords map[string]struct{}) string {
+	words := strings.Split(body, " ")
+	for i, word := range words {
+		loweredWord := strings.ToLower(word)
+		if _, ok := badWords[loweredWord]; ok {
+			words[i] = "****"
 		}
 	}
-
-	return strings.Join(tokens, " ")
+	cleaned := strings.Join(words, " ")
+	return cleaned
 }

@@ -20,8 +20,13 @@ func TestCleaningUpChirp(t *testing.T) {
 			want:  "I hear Mastodon is better than Chirpy. **** I need to migrate",
 		},
 	}
+	badWords := map[string]struct{}{
+		"kerfuffle": {},
+		"sharbert":  {},
+		"fornax":    {},
+	}
 	for _, c := range cases {
-		got := CleanChirp(c.input)
+		got := CleanChirp(c.input, badWords)
 		if c.want != got {
 			t.Errorf("want: %s, got: %s", c.want, got)
 		}

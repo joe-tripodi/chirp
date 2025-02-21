@@ -8,14 +8,14 @@ import (
 func (cfg *apiConfig) handlerReset(w http.ResponseWriter, r *http.Request) {
 	if cfg.platform != "dev" {
 		w.WriteHeader(http.StatusForbidden)
+		w.Write([]byte("Reset is only allowed in dev environment."))
 		return
 	}
 	cfg.fileserverHits.Store(0)
-	err := cfg.db.DeleteAllUsers(r.Context())
+	err := cfg.db.Reset(r.Context())
 	if err != nil {
-		log.Println("unable to delete all users:", err)
+		log.Println("unable to reset database", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Reset is only allowed in dev environment."))
 		return
 	}
 	w.WriteHeader(http.StatusOK)
