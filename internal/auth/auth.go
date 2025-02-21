@@ -43,14 +43,22 @@ func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (str
 }
 
 func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(tokenSecret), nil
-	})
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		&CustomClaims{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(tokenSecret), nil
+		},
+	)
+
 	if err != nil {
-		log.Fatal(err)
-	} else if claims, ok := token.Claims.(*CustomClaims); ok {
+		return uuid.Nil, errors.New("Unable to parse token")
+	}
+
+	if claims, ok := token.Claims.(*CustomClaims); ok {
 		return claims.UserId, nil
 	}
+
 	log.Fatal("unknown claims type, cannot proceed")
-	return uuid.UUID{}, errors.New("unknown claims type, cannot process")
+	return uuid.Nil, errors.New("unknown claims type, cannot process")
 }
