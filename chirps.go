@@ -25,6 +25,7 @@ type Chirp struct {
 
 func (cfg *apiConfig) handlerGetChirp(w http.ResponseWriter, r *http.Request) {
 	chirpId, err := uuid.Parse(r.PathValue("chirpID"))
+
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "unable to parse chirpId", err)
 		return
@@ -46,7 +47,24 @@ func (cfg *apiConfig) handlerGetChirp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
-	chirps, err := cfg.db.Chirps(r.Context())
+	queryParamAuthorId := r.URL.Query().Get("author_id")
+	var authorId uuid.UUID
+	if queryParamAuthorId != "" {
+		var err error
+		authorId, err = uuid.Parse(queryParamAuthorId)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, "invalid author id", err)
+			return
+		}
+	}
+	var chirps []database.Chirp
+	var err error
+	if authorId != uuid.Nil {
+		chirps, err = cfg.db.GetChirpsByAuthor(r.Context(), authorId)
+	} else {
+		chirps, err = cfg.db.Chirps(r.Context())
+	}
+
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "failed to get all chirps", err)
 		return
