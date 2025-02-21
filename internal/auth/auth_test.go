@@ -1,6 +1,12 @@
 package auth
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+	"time"
+
+	"github.com/google/uuid"
+)
 
 func TestPasswords(t *testing.T) {
 	pwd := "password"
@@ -17,4 +23,21 @@ func TestPasswords(t *testing.T) {
 	if ok == nil {
 		t.Error("passwords should not match!!!!!")
 	}
+}
+
+func TestJWTMake(t *testing.T) {
+	const tokenSecret = "SlapTheBase"
+
+	id, _ := uuid.NewRandom()
+	ss, err := MakeJWT(id, tokenSecret, time.Duration(10*time.Minute))
+	if err != nil {
+		t.Errorf("Unable to generate token: %s\n", err)
+	}
+	fmt.Print(ss)
+
+	userId, err := ValidateJWT(ss, tokenSecret)
+	if userId != id {
+		t.Errorf("expected ids to match: want: %v, got: %v\n", id, userId)
+	}
+
 }
