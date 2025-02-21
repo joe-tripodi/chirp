@@ -59,11 +59,7 @@ func (cfg *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
 	}
 	var chirps []database.Chirp
 	var err error
-	if authorId != uuid.Nil {
-		chirps, err = cfg.db.GetChirpsByAuthor(r.Context(), authorId)
-	} else {
-		chirps, err = cfg.db.Chirps(r.Context())
-	}
+	chirps, err = cfg.db.Chirps(r.Context())
 
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "failed to get all chirps", err)
@@ -73,6 +69,10 @@ func (cfg *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
 
 	res := []Chirp{}
 	for _, chirp := range chirps {
+		if authorId != uuid.Nil && chirp.UserID != authorId {
+			continue
+		}
+
 		res = append(res, Chirp{
 			ID:        chirp.ID,
 			CreatedAt: chirp.CreatedAt,
