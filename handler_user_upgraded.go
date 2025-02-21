@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 
@@ -28,15 +29,13 @@ func (cfg *apiConfig) handlerUserUpgraded(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	ok, err := cfg.db.GetUserById(r.Context(), params.Data.UserId)
-	if err != nil || !ok {
-		respondWithError(w, http.StatusNotFound, "user not found", err)
-		return
-	}
-
 	_, err = cfg.db.UpgradeUserToRed(r.Context(), params.Data.UserId)
 	if err != nil {
-		respondWithError(w, http.StatusNotFound, "user not found", err)
+		if err == sql.ErrNoRows {
+			respondWithError(w, http.StatusNotFound, "user not found", err)
+			return
+		}
+		respondWithError(w, http.StatusInternalServerError, "unable to update user", err)
 		return
 	}
 
